@@ -1,0 +1,729 @@
+#Creat Newdatabase
+CREATE DATABASE StudentInformationSystem;
+USE StudentInformationSystem;
+
+# Remove Databases
+DROP DATABASE IF EXISTS StudentInformationSystem;
+
+#Creat Table and Link with Foreign key
+CREATE TABLE StudentInformationSystem.Department(
+	IdDepartment INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	Name VARCHAR(100) NOT NULL,
+	Sign TEXT,
+    Contact TEXT
+) ENGINE=INNODB;
+
+
+CREATE TABLE StudentInformationSystem.InformationStudent(
+	FirstName VARCHAR(60) NOT NULL,
+	LastName VARCHAR(30) NOT NULL,
+	IdStudent INT UNIQUE AUTO_INCREMENT,
+	DateOfBirth DATE,
+	Sex VARCHAR(10),
+    Phone TEXT,
+    IdDepartment INT,
+    FinalScore FLOAT,
+    PRIMARY KEY (IdStudent,FinalScore),
+    CONSTRAINT Manage_Student
+    FOREIGN KEY (IdDepartment) 
+    REFERENCES StudentInformationSystem.Department(IdDepartment)
+    ON UPDATE RESTRICT 
+    ON DELETE CASCADE
+    
+)ENGINE=INNODB;
+
+CREATE TABLE StudentInformationSystem.Learn(
+	IdStudent INT,
+    Math FLOAT,
+    Graphics FLOAT,
+    Electric FLOAT,
+    Mechanical FLOAT,
+    English FLOAT,
+    Exercise FLOAT,
+    Phisical FLOAT,
+    Astronomy FLOAT,
+    CONSTRAINT Study
+    FOREIGN KEY (IdStudent) 
+    REFERENCES StudentInformationSystem.InformationStudent(IdStudent)
+    ON UPDATE RESTRICT 
+    ON DELETE CASCADE
+    
+)ENGINE=INNODB;
+
+
+
+#/////////////////////////////Start Test////////////////////////////////
+# Test Trigger
+
+CREATE TABLE StudentInformationSystem.Reference(
+	FirstName VARCHAR(60) NOT NULL,
+	LastName VARCHAR(30) NOT NULL,
+	IdStudent INT,
+    FinalScore FLOAT,
+    NewFinalScore FLOAT,
+    CHECK (FinalScore >=0 AND FinalScore<=10)
+    
+  /*  PRIMARY KEY (IdStudent,FinalScore),
+    CONSTRAINT Manage_Student
+    FOREIGN KEY (IdDepartment) 
+    REFERENCES StudentInformationSystem.Department(IdDepartment)
+    ON UPDATE RESTRICT 
+    ON DELETE CASCADE*/
+)ENGINE=INNODB;
+# End test Trigger
+
+#Test Foreign Key
+
+CREATE TABLE StudentInformationSystem.Learn(
+	IdStudent INT,
+	IdUses INT,
+	FinalScoreUpdate INT,
+    PRIMARY KEY (IdStudent,FinalScoreUpdate),
+    CONSTRAINT Study
+    FOREIGN KEY (IdStudent) 
+    REFERENCES StudentInformationSystem.InformationStudent(IdStudent)
+    ON UPDATE CASCADE 
+    ON DELETE CASCADE,
+    FOREIGN KEY (IdUses) 
+    REFERENCES StudentInformationSystem.Department(IdDepartment)
+    ON UPDATE CASCADE 
+    ON DELETE CASCADE
+   # FOREIGN KEY (FinalScoreUpdate) 
+   # REFERENCES StudentInformationSystem.InformationStudent(FinalScore)
+   # ON UPDATE CASCADE 
+   #ON DELETE CASCADE
+    
+)ENGINE=INNODB;
+
+
+
+USE StudentInformationSystem;
+DELIMITER $$
+
+CREATE TRIGGER after_InformationStudent_update
+AFTER UPDATE ON StudentInformationSystem.InformationStudent
+FOR EACH ROW
+  BEGIN
+    IF OLD.FinalScore <> new.FinalScore THEN
+       INSERT INTO StudentInformationSystem.Reference(FirstName,LastName,IdStudent,NewFinalScore)
+       VALUES(OLD.FirstName, OLD.LastName,OLD.IdStudent,NEW.FinalScore);
+    END IF;
+   
+END $$
+
+DELIMITER ;
+
+####//////////////End Test///////////////////////////
+ 
+
+
+INSERT INTO StudentInformationSystem.InformationStudent(FirstName,LastName,DateOfBirth,Sex,Phone,IdDepartment,FinalScore)
+VALUES('Tran Van','Lam','1991-07-27','Female','0968657666',1002,8),
+('Tran Nhat','Quang','1991-11-06','Male','0945276868',1002,9);
+
+
+INSERT INTO StudentInformationSystem.Learn(Idstudent,IdUses)
+VALUES(556,1002)
+
+
+DELETE FROM StudentInformationSystem.Learn
+WHERE IdStudent=200;
+
+
+UPDATE StudentInformationSystem.InformationStudent 
+SET 
+   IdStudent =555
+WHERE
+    IdStudent=1000;
+
+
+
+# End Test
+
+
+# Insert Detail
+INSERT INTO StudentInformationSystem.Department(Name,Sign,Contact)
+VALUES('Mechanical','ME','0246457845');
+
+INSERT INTO StudentInformationSystem.InformationStudent(FirstName,LastName,IdUseSystem,DateOfBirth,Sex,Phone,IdDepartment,FinalScore)
+VALUES#('Ngo Kim','Thoa',200,500,'1991-07-27','Female','0968657666',1000)
+#('Tran Nhat','Quang',600,2015,'1991-11-06','Male','0945276868',1001,8.5),
+('Tran Van','Phong',2016,'1991-10-04','Male','0983682552',1001,9.5);
+#('Do Nhu','Trang',700,'1991-08-25','Female','0945795665',1002);
+#('Nguyen Thi Kim ','Hue','1991-05-10','Female','091236555',1003);
+
+
+INSERT INTO StudentInformationSystem.Learn(IdStudent,Math,Graphics,Electric,Mechanical,English,Exercise,Phisical,Astronomy)
+VALUES(20160,4.5,3.5,5,4,3.5,5,4.5,6),
+(20170,4,6.5,4,3.5,6,4.5,4,5.5),
+(20171,5,5.5,4,3.5,6,4.5,6,5.5),
+(20172,8,7.5,6,8.5,6,5,6,8),
+(20173,6.5,5.5,4,9.5,8.5,8.5,5.5,9),
+(20174,9,7.5,8.5,8,7.5,8,8,10),
+(20175,8,9.5,9.5,8,8.5,8.5,8.5,9),
+(20176,9,8.5,9.5,8,9,9,7.5,8),
+(20177,9,8,9.5,9,9,8,10,9.5),
+(20178,8,8.5,9.5,8.5,8.5,8,9,9),
+(20179,9.5,10,9.5,8,8,8,10,8.5),
+(20180,9,9,9,9,9,9,10,9.5),
+(20181,8.5,8.5,6.5,6,8.5,8,8.5,8.5),
+(20182,9,5.5,9.5,8,875,8,9.5,9.5);
+
+
+
+#Update value on table to change value on table
+UPDATE StudentInformationSystem.Department 
+SET 
+    IdDepartment=555
+WHERE
+    IdDepartment = 1000;
+# Delete dât on table
+DELETE FROM StudentInformationSystem.Department
+WHERE IdDepartment=1000;
+
+# Calcule AVG of all student
+SELECT 
+    IdStudent,
+    AVG((Math+Graphics+Electric+Mechanical+English+Exercise+Phisical+Astronomy)/8) 'Avegrage'
+FROM
+    ManagementStudent.Learn
+GROUP BY
+   IdStudent;
+  
+# Creat Group By to Sum and Arverage   
+SELECT 
+    IdStudent,
+    SUM(Math+Graphics+Electric+Mechanical+English+Exercise+Phisical+Astronomy) AS total,
+    COUNT(*)AS number123,
+    SUM((Math+Graphics+Electric+Mechanical+English+Exercise+Phisical+Astronomy)/8) AS Average 
+FROM
+   ManagementStudent.Learn
+GROUP BY 
+    IdStudent;
+   
+# Creat Group By to Sum and Arverage And Iner 
+SELECT 
+    IdStudent,
+    FirstName,
+    LastName,
+    SUM(Math+Graphics+Electric+Mechanical+English+Exercise+Phisical+Astronomy) AS total,
+    SUM((Math+Graphics+Electric+Mechanical+English+Exercise+Phisical+Astronomy)/8) AS Average,
+    COUNT(*)AS number123
+FROM
+   ManagementStudent.Infomation
+INNER JOIN ManagementStudent.Learn
+USING (IdStudent)
+GROUP BY 
+    IdStudent;
+   
+ # Filter Top 3 hightest Using Limit and Join
+SELECT 
+    IdStudent,
+    FirstName,
+    LastName,
+    IdDepartment,
+    SUM(Math+Graphics+Electric+Mechanical+English+Exercise+Phisical+Astronomy) AS total,
+    SUM((Math+Graphics+Electric+Mechanical+English+Exercise+Phisical+Astronomy)/8) AS Average,
+    COUNT(*)AS number123
+FROM
+   ManagementStudent.Infomation
+JOIN ManagementStudent.Learn
+USING (IdStudent)
+GROUP BY 
+    IdStudent
+ORDER BY
+	total DESC
+LIMIT 0,3;
+
+# Filter Top Student Total< 40 (Detail Average < 5) Using Limit and Iner
+SELECT 
+    IdStudent,
+    FirstName,
+    LastName,
+    IdDepartment,
+    Sign,
+    SUM(Math+Graphics+Electric+Mechanical+English+Exercise+Phisical+Astronomy) AS total,
+    SUM((Math+Graphics+Electric+Mechanical+English+Exercise+Phisical+Astronomy)/8) AS Average,
+    COUNT(*)AS number123
+FROM
+   ManagementStudent.Infomation
+JOIN ManagementStudent.Learn
+USING (IdStudent)
+JOIN ManagementStudent.Department
+USING(IdDepartment)
+GROUP BY 
+    IdStudent,
+    IdDepartment
+HAVING
+	Average<5
+ORDER BY
+	total;
+
+
+# Number student on Department
+SELECT
+IdDepartment,
+Name,
+Sign,
+COUNT(*) AS TotalStudent
+FROM
+ManagementStudent.Infomation i
+JOIN ManagementStudent.Department
+USING (IdDepartment)
+GROUP BY 
+IdDepartment;
+
+# Number student are Female on Department
+SELECT
+IdDepartment,
+Name,
+Sign,
+COUNT(*) AS Number_Female
+FROM
+ManagementStudent.Infomation i
+JOIN ManagementStudent.Department
+USING (IdDepartment)
+WHERE
+Sex='Female'
+GROUP BY 
+IdDepartment;
+
+
+# List Top 3 Student have Hightest score in IT
+SELECT 
+    IdStudent,
+    FirstName,
+    LastName,
+    IdDepartment, 
+    Sign,
+    SUM(Math+Graphics+Electric+Mechanical+English+Exercise+Phisical+Astronomy) AS total,
+    SUM((Math+Graphics+Electric+Mechanical+English+Exercise+Phisical+Astronomy)/8) AS Average,
+    COUNT(*)AS number123
+FROM
+   ManagementStudent.Infomation
+JOIN ManagementStudent.Learn
+USING (IdStudent)
+JOIN ManagementStudent.Department
+USING(IdDepartment)
+WHERE IdDepartment=1000
+GROUP BY 
+    IdStudent,
+    IdDepartment
+ORDER BY
+	total DESC 
+LIMIT 0,3;
+
+#list student have Average Score >8.0 in IT Department
+SELECT 
+    IdStudent,
+    FirstName,
+    LastName,
+    IdDepartment, 
+    Sign,
+    SUM(Math+Graphics+Electric+Mechanical+English+Exercise+Phisical+Astronomy) AS total,
+    SUM((Math+Graphics+Electric+Mechanical+English+Exercise+Phisical+Astronomy)/8) AS Average,
+    COUNT(*)AS number123
+FROM
+   ManagementStudent.Infomation
+JOIN ManagementStudent.Learn
+USING (IdStudent)
+JOIN ManagementStudent.Department
+USING(IdDepartment)
+WHERE IdDepartment=1000
+GROUP BY 
+    IdStudent,
+    IdDepartment
+HAVING
+	Average>8
+ORDER BY
+	total DESC;
+
+
+# list student have score is 10 of Graphics
+SELECT 
+    IdStudent,
+    FirstName,
+    LastName,
+    IdDepartment,
+    Graphics
+FROM
+   ManagementStudent.Infomation
+JOIN ManagementStudent.Learn
+USING (IdStudent)
+WHERE Graphics =10;
+ORDER BY
+	IdStudent DESC;
+
+# Stored Produce
+DELIMITER $$
+CREATE PROCEDURE GoodGraphic()
+BEGIN
+   SELECT 
+    IdStudent,
+    FirstName,
+    LastName,
+    IdDepartment,
+    Graphics
+FROM
+   ManagementStudent.Infomation
+JOIN ManagementStudent.Learn
+USING (IdStudent)
+WHERE Graphics =10;
+ORDER BY
+	IdStudent DESC;
+END$$
+DELIMITER ;
+# 
+
+
+
+
+
+
+
+
+
+#/////////////////////////////////////////////////////////////////////////////////////#
+#///////////////////////////Build ManagementStudent DataBases/////////////////////////#
+
+
+
+
+#Creat Newdatabase
+CREATE DATABASE ManagementStudent;
+USE ManagementStudent;
+
+
+# Creat Mutitable
+CREATE TABLE ManagementStudent.Department(
+	IdDepartment INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	Name VARCHAR(100) NOT NULL,
+	Sign TEXT,
+    Contact TEXT
+) ENGINE=INNODB ;
+
+CREATE TABLE ManagementStudent.Lecture(
+	IdLecture INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	FirstNameLecture VARCHAR(100) NOT NULL,
+	LastNameLecture VARCHAR(50) NOT NULL,
+	Sex VARCHAR(50),
+	IdDepartment INT NOT NULL,
+    ContactLecture TEXT,
+    CONSTRAINT Manage_Lecture
+    FOREIGN KEY (IdDepartment) 
+    REFERENCES ManagementStudent.Department(IdDepartment)
+    ON UPDATE CASCADE 
+    ON DELETE CASCADE
+) ENGINE=INNODB;
+
+CREATE TABLE ManagementStudent.StudentInformation(
+	FirstName VARCHAR(60) NOT NULL,
+	LastName VARCHAR(30) NOT NULL,
+	IdStudent INT UNIQUE AUTO_INCREMENT,
+	Sex VARCHAR(10),
+	DateOfBirth DATE,
+    Phone TEXT,
+    IdDepartment INT,
+    PRIMARY KEY (IdStudent),
+    CONSTRAINT Manage_Student
+    FOREIGN KEY (IdDepartment) 
+    REFERENCES ManagementStudent.Department(IdDepartment)
+    ON UPDATE CASCADE 
+    ON DELETE CASCADE
+    
+)ENGINE=INNODB;   
+
+CREATE TABLE ManagementStudent.Subject(
+	IdSubject INT UNIQUE AUTO_INCREMENT,
+	NameSubject VARCHAR(60) NOT NULL,
+	SignSubject VARCHAR(60) NOT NULL,
+	Test1 FLOAT,
+	Test2 FLOAT,
+	FinalTest FLOAT,
+    PRIMARY KEY (IdSubject)    
+)ENGINE=INNODB;  
+
+CREATE TABLE ManagementStudent.Study(
+	IdStudent INT,
+	IdSubject INT,
+	Point1 FLOAT,
+	Point2 FLOAT,
+	FinalPoint FLOAT,
+    FOREIGN KEY (IdStudent)
+    REFERENCES ManagementStudent.StudentInformation(IdStudent)
+    ON UPDATE CASCADE 
+    ON DELETE CASCADE,
+    FOREIGN KEY (IdSubject) 
+    REFERENCES ManagementStudent.Subject(IdSubject)
+    ON UPDATE CASCADE 
+    ON DELETE CASCADE
+)ENGINE=INNODB;   
+
+CREATE TABLE ManagementStudent.Teach(
+	IdLecture INT,
+	IdSubject INT,
+	FOREIGN KEY (IdLecture)
+    REFERENCES ManagementStudent.Lecture(IdLecture)
+    ON UPDATE CASCADE 
+    ON DELETE CASCADE,
+    FOREIGN KEY (IdSubject) 
+    REFERENCES ManagementStudent.Subject(IdSubject)
+    ON UPDATE CASCADE 
+    ON DELETE CASCADE
+)ENGINE=INNODB;  
+
+#/////////// Insert Data on table////////////#
+
+INSERT INTO ManagementStudent.Department(Name,Sign,Contact)
+VALUES('Heat Engineering And Refrigretion','HER','0242257585');
+
+INSERT INTO ManagementStudent.Lecture(FirstNameLecture,LastNameLecture,Sex,IdDepartment,ContactLecture)
+VALUES('Trinh Dong','Tinh','Male',1005,'0242257585'),
+('Vu Le','Quyen','Female',1002,'0242257585'),
+('Tran Dinh','Canh','Male',1000,'0242257585'),
+('Hoang Hong','Hai','Male',1004,'0242257585'),
+('Mac Thi','Thoa','Male',1001,'0242257585'),
+('Nguyen Pham','Hung','Male',1002,'0242257585'),
+('Mai Thi','Lan','Female',1003,'0242257585'),
+('Tran Thanh','Thao','Female',1005,'0242257585'),
+('Nguyen Dinh','Thanh','Male',1002,'0242257585'),
+('Vu Van','Cong','Male',1000,'0242257585');
+
+
+INSERT INTO ManagementStudent.StudentInformation(FirstName,LastName,Sex,DateOfBirth,Phone,IdDepartment)
+VALUES('Phan Hong','Long','Male','1991-07-27','0968657666',1000),
+('Tran Nhat','Thanh','Male','1991-11-06','0945276868',1001),
+('Tran Van','Canh','Male','1991-10-04','0983682552',1004),
+('Do Nhu','Quyen','Female','1991-08-25','0945795665',1002),
+('Nguyen Thi','Hoa','Female','1991-05-10','091236555',1003),
+('Vu Nhat ','Long','Female','1991-05-12','091247555',1005);
+
+INSERT INTO ManagementStudent.Subject(NameSubject,SignSubject,Test1,Test2,FinalTest)
+VALUES('Medicine','M',0.2,0.3,0.5),
+('Astronomy','AS',0.2,0.4,0.4),
+('Accountancy','AC',0.3,0.3,0.4),
+('Architecture','AR',0.2,0.3,0.5),
+('Foreign language','AL',0.2,0.3,0.5),
+('Chemistry','CHE',0.2,0.3,0.5),
+('Economics ','EC',0.3,0.3,0.4),
+('Politics','PO',0.2,0.4,0.4),
+('Physics','PHY',0.1,0.4,0.5),
+('Design and technology','DT',0.2,0.3,0.5),
+('Law','LA',0.2,0.4,0.4),
+('National Defense Education','NDE',0.3,0.3,0.4);
+
+
+INSERT INTO ManagementStudent.Study(Idstudent,IdSubject,Point1,Point2,FinalPoint)
+VALUES
+(3013,4001,9,7,6),
+(3013,4004,8,7,5),
+(3013,4007,8,7,5),
+(3013,4009,8,6,9),
+(3013,4010,8,8.5,7),
+#(3013,4012,8,6,7),
+(3013,4013,9,8,9);
+
+INSERT INTO ManagementStudent.Teach(IdLecture,IdSubject)
+VALUES
+(2011,4004),
+(2011,4005),
+(2011,4009);
+
+
+UPDATE ManagementStudent.Study
+SET 
+   Point1 =9,
+   FinalPoint=9.5
+WHERE
+    IdStudent=3012 AND IdSubject =4010;
+   
+   
+# Query Filter Data
+
+# Cacular Average point all Student For Seasion
+
+SELECT 
+    IdStudent,
+    FirstName,
+    LastName,
+    AVG(Point1*Test1+Point2*test2+FinalPoint*FinalTest) AS Average
+FROM
+   ManagementStudent.Study
+JOIN ManagementStudent.StudentInformation
+USING (IdStudent)
+JOIN ManagementStudent.Subject
+USING (IdSubject)
+GROUP BY 
+    IdStudent;
+   
+# Student award for Avegrage >=7.5
+ SELECT 
+    IdStudent,
+    FirstName,
+    LastName,
+    AVG(Point1*Test1+Point2*test2+FinalPoint*FinalTest) AS Average
+FROM
+   ManagementStudent.Study
+JOIN ManagementStudent.StudentInformation
+USING (IdStudent)
+JOIN ManagementStudent.Subject
+USING (IdSubject)
+GROUP BY 
+    IdStudent
+HAVING Average>=7.5
+ORDER BY Average DESC;
+
+# Top 3 Have  Hightest Average Score
+ SELECT 
+    IdStudent,
+    FirstName,
+    LastName,
+    AVG(Point1*Test1+Point2*test2+FinalPoint*FinalTest) AS Average
+FROM
+   ManagementStudent.Study
+JOIN ManagementStudent.StudentInformation
+USING (IdStudent)
+JOIN ManagementStudent.Subject
+USING (IdSubject)
+GROUP BY 
+    IdStudent
+ORDER BY Average DESC
+LIMIT 3;
+
+
+   
+#Calcular Avegrage Every Subject of  Every Student
+   
+   SELECT 
+    IdStudent,
+    FirstName,
+    LastName,
+    IdSubject,
+    NameSubject,
+    SUM(Point1*Test1+Point2*test2+FinalPoint*FinalTest) AS Average
+FROM
+   ManagementStudent.Study
+JOIN ManagementStudent.StudentInformation
+USING (IdStudent)
+JOIN ManagementStudent.Subject
+USING (IdSubject)
+WHERE IdStudent=3000
+GROUP BY 
+    IdSubject;
+   
+ #creat View Table, Auto update value
+CREATE VIEW ManagementStudent.Reference AS
+ SELECT 
+ IdStudent,
+ FirstName,
+ LastName,
+ Name,
+ AVG(Point1*Test1+Point2*test2+FinalPoint*FinalTest) AS Average
+ FROM ManagementStudent.Study
+ JOIN ManagementStudent.StudentInformation
+ USING (IdStudent)
+JOIN ManagementStudent.Subject
+USING (IdSubject)
+JOIN ManagementStudent.Department
+USING (IdDepartment)
+GROUP BY 
+    IdStudent;
+   
+SELECT * FROM ManagementStudent.Reference;
+# Test 
+UPDATE ManagementStudent.Study
+SET 
+   Point1 =9,
+   FinalPoint=9.5
+WHERE
+    IdStudent=3012 AND IdSubject =4010;
+
+  
+   
+   
+   
+   
+#Calcular Avegrage Every Subject of  Every Student
+   
+   
+   
+SELECT 
+    IdStudent,
+    FirstName,
+    LastName,
+    IdSubject,
+    NameSubject,
+    SUM(DISTINCT Point1*Test1+Point2*test2+FinalPoint*FinalTest) AS Average    
+FROM
+   ManagementStudent.Study
+JOIN ManagementStudent.StudentInformation
+USING (IdStudent)
+JOIN ManagementStudent.Subject
+USING (IdSubject)
+WHERE IdStudent=3000
+GROUP BY 
+    IdSubject;
+  
+   
+   
+
+#/////////////////Creat Ranking///////////////////#
+
+
+WITH ManagementStudent.cte AS (
+   SELECT 
+   IdStudent,
+    FirstName,
+    LastName,
+    AVG(Point1*Test1+Point2*test2+FinalPoint*FinalTest) AS Average
+  FROM
+   ManagementStudent.Study
+   	JOIN ManagementStudent.StudentInformation
+	USING (IdStudent)
+	JOIN ManagementStudent.Subject
+	USING (IdSubject)
+	GROUP BY 
+    IdStudent
+)
+SELECT 
+    IdStudent,
+    FirstName,
+    LastName,
+    Average,
+    CASE Average
+        WHEN 8.2 THEN 'Very Good'
+        #WHEN  THEN 'Repeated Customer'
+        #WHEN 3 THEN 'Frequent Customer'
+        ELSE 'Bad'
+    END Ranking
+FROM
+   ManagementStudent.cte
+ORDER BY Average;
+
+
+ #Test
+ 
+WITH ManagementStudent.abc AS
+(
+SELECT 
+    IdStudent,
+ 	FirstName,
+ 	LastName
+FROM ManagementStudent.StudentInformation
+)
+SELECT*FROM ManagementStudent.abc;
+   
+
+
+
+
+# creat connect
+ dbconfig.php
+    $host = 'localhost';
+    $dbname = 'classicmodels';
+    $username = 'root';
+    $password = '';
+   
+   
+   
+
